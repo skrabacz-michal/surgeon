@@ -537,7 +537,6 @@ public class PieRenderer extends OverlayRenderer
             else
             {
                 setCenter((int) x, (int) y);
-                Log.d("XX", "set center " + x + " | " + y);
 
                 show(true);
             }

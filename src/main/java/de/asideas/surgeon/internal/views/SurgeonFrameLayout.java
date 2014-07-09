@@ -82,7 +82,7 @@ public class SurgeonFrameLayout extends FrameLayout
 
     private static final int CHILD_COUNT_ESTIMATION = 25;
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static void log(String message, Object... args)
     {

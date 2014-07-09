@@ -248,11 +248,25 @@ public class InspectorArcService extends Service implements View.OnTouchListener
             }
         });
 
+        PieItem itemRecord = pieController.makeItem(R.drawable.drag);
+        itemRecord.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO + 3 * sweep, sweep);
+        itemRecord.setOnClickListener(new de.asideas.surgeon.internal.ccontrols.PieItem.OnClickListener()
+        {
+            @Override
+            public void onClick(de.asideas.surgeon.internal.ccontrols.PieItem item)
+            {
+                Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        });
+
         pieRenderer.addItem(itemStart);
         pieRenderer.addItem(itemShowViews);
         pieRenderer.addItem(itemShowDetails);
         pieRenderer.addItem(itemLayers);
         pieRenderer.addItem(itemClose);
+        pieRenderer.addItem(itemRecord);
 
         PieItem itemLayersHide = pieController.makeItem(R.drawable.remove_layer);
         itemLayersHide.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO - sweep, sweep);
