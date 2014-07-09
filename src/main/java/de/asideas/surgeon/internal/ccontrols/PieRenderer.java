@@ -23,6 +23,7 @@ import android.content.res.Resources;
 import android.graphics.*;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.view.animation.Animation;
@@ -36,6 +37,7 @@ import com.nineoldandroids.view.ViewPropertyAnimator;
 import java.util.ArrayList;
 import java.util.List;
 import de.asideas.surgeon.R;
+import de.asideas.surgeon.internal.Utils;
 
 public class PieRenderer extends OverlayRenderer
         implements FocusIndicator
@@ -285,7 +287,7 @@ public class PieRenderer extends OverlayRenderer
      *
      * @param show
      */
-    private void show(boolean show)
+    public void show(boolean show)
     {
         if (show)
         {
@@ -468,7 +470,7 @@ public class PieRenderer extends OverlayRenderer
             canvas.restoreToCount(state);
             return;
         }
-        if ((mOpenItem == null) || (mXFade != null))
+        if (mOpenItem == null || mXFade != null)
         {
             // draw base menu
             for (PieItem item : mItems)
@@ -512,8 +514,9 @@ public class PieRenderer extends OverlayRenderer
     @Override
     public boolean onTouchEvent(MotionEvent evt)
     {
-        float x = evt.getX();
-        float y = evt.getY();
+        // FIXME msq
+        float x = evt.getRawX() - Utils.dpToPx(getContext(), 12);
+        float y = evt.getRawY() - Utils.dpToPx(getContext(), 10);
 
         int action = evt.getActionMasked();
         PointF polar = getPolar(x, y, !(mTapMode));
@@ -534,6 +537,8 @@ public class PieRenderer extends OverlayRenderer
             else
             {
                 setCenter((int) x, (int) y);
+                Log.d("XX", "set center " + x + " | " + y);
+
                 show(true);
             }
             return true;
@@ -781,16 +786,16 @@ public class PieRenderer extends OverlayRenderer
     public void layout(int l, int t, int r, int b)
     {
         super.layout(l, t, r, b);
-        mCenterX = (r - l) / 2;
-        mCenterY = (b - t) / 2;
-        mFocusX = mCenterX;
-        mFocusY = mCenterY;
-        setCircle(mFocusX, mFocusY);
-        if (isVisible() && mState == STATE_PIE)
-        {
-            setCenter(mCenterX, mCenterY);
-            layoutPie();
-        }
+//        mCenterX = (r - l) / 4;
+//        mCenterY = (b - t) / 2;
+//        mFocusX = mCenterX;
+//        mFocusY = mCenterY;
+//        setCircle(mFocusX, mFocusY);
+//        if (isVisible() && mState == STATE_PIE)
+//        {
+//            setCenter(mCenterX, mCenterY);
+//            layoutPie();
+//        }
     }
 
     private void setCircle(int cx, int cy)

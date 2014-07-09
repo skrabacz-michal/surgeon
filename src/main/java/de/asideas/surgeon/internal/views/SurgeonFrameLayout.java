@@ -44,7 +44,7 @@ import de.asideas.surgeon.internal.utils.LayoutTraverser;
  * <li>Two finger horizontal pinch: Adjust layer spacing.</li>
  * </ul>
  */
-public class ScalpelFrameLayout extends FrameLayout
+public class SurgeonFrameLayout extends FrameLayout
 {
     private static final int TRACKING_UNKNOWN = 0;
 
@@ -177,17 +177,17 @@ public class ScalpelFrameLayout extends FrameLayout
 
     private int chromeShadowColor;
 
-    public ScalpelFrameLayout(Context context)
+    public SurgeonFrameLayout(Context context)
     {
         this(context, null);
     }
 
-    public ScalpelFrameLayout(Context context, AttributeSet attrs)
+    public SurgeonFrameLayout(Context context, AttributeSet attrs)
     {
         this(context, attrs, 0);
     }
 
-    public ScalpelFrameLayout(Context context, AttributeSet attrs, int defStyle)
+    public SurgeonFrameLayout(Context context, AttributeSet attrs, int defStyle)
     {
         super(context, attrs, defStyle);
         res = context.getResources();
@@ -605,6 +605,8 @@ public class ScalpelFrameLayout extends FrameLayout
         }
 
         canvas.restoreToCount(saveCount);
+
+        updateMaxLayerCount();
     }
 
     private String nameForId(int id)
@@ -651,14 +653,15 @@ public class ScalpelFrameLayout extends FrameLayout
         protected abstract T newObject();
     }
 
-    // FIXME msq
-    int MAX_LAYER_COUNT = 11;
+    private int MIN_LAYER_COUNT = 4;
 
-    private int counter = MAX_LAYER_COUNT;
+    private int MAX_LAYER_COUNT = MIN_LAYER_COUNT;
+
+    private int counter = -1;
 
     public void hideLayers()
     {
-        counter = counter == 4 ? MAX_LAYER_COUNT : --counter;
+        counter = counter <= MIN_LAYER_COUNT ? MAX_LAYER_COUNT : --counter;
 
         LayoutTraverser.build(new LayoutTraverser.Processor()
         {
@@ -684,10 +687,37 @@ public class ScalpelFrameLayout extends FrameLayout
                 }
             }
         }).traverse(this);
+
         invalidate();
         if (counter == MAX_LAYER_COUNT)
         {
             layerVisibilities.clear();
+        }
+    }
+
+    public void showLayers()
+    {
+        if (counter < MAX_LAYER_COUNT)
+        {
+            LayoutTraverser.build(new LayoutTraverser.Processor()
+            {
+                @SuppressWarnings("ResourceType")
+                @Override
+                public void process(View view)
+                {
+                    if (getLayerDistance(view) <= counter)
+                    {
+                        if (layerVisibilities.containsKey(view))
+                        {
+                            view.setVisibility(layerVisibilities.remove(view));
+                        }
+
+                    }
+                }
+            }).traverse(this);
+
+            invalidate();
+            ++counter;
         }
     }
 
@@ -702,5 +732,23 @@ public class ScalpelFrameLayout extends FrameLayout
         }
 
         return layer;
+    }
+
+    private void updateMaxLayerCount()
+    {
+        if (counter < 0)
+        {
+            LayoutTraverser.build(new LayoutTraverser.Processor()
+            {
+                @SuppressWarnings("ResourceType")
+                @Override
+                public void process(View view)
+                {
+                    int distance = getLayerDistance(view) + 1;
+                    MAX_LAYER_COUNT = distance > MAX_LAYER_COUNT ? distance : MAX_LAYER_COUNT;
+                    counter = MAX_LAYER_COUNT;
+                }
+            }).traverse(this);
+        }
     }
 }

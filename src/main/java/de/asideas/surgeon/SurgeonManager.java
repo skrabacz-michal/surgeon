@@ -6,26 +6,26 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import de.asideas.surgeon.internal.views.ScalpelFrameLayout;
+import de.asideas.surgeon.internal.views.SurgeonFrameLayout;
 import de.asideas.surgeon.services.InspectorArcService;
 
 /**
  * Created by mskrabacz on 03/07/14.
  */
-public class ScalpelManager
+public class SurgeonManager
 {
-    private static final String TAG = ScalpelManager.class.getSimpleName();
+    private static final String TAG = SurgeonManager.class.getSimpleName();
 
     private final Activity mContext;
 
-    private ScalpelFrameLayout mScalpelView;
+    private SurgeonFrameLayout mSurgeonView;
 
-    public ScalpelManager(Activity context)
+    public SurgeonManager(Activity context)
     {
         mContext = context;
     }
 
-    public void injectScalpel()
+    public void injectSurgeon()
     {
         if (BuildConfig.ENABLE_CALABASH)
         {
@@ -39,10 +39,10 @@ public class ScalpelManager
 
                 rootView.removeView(content);
 
-                mScalpelView = (ScalpelFrameLayout) LayoutInflater.from(mContext).inflate(R.layout.surgeon_wrapper, rootView, false);
-                mScalpelView.addView(content);
+                mSurgeonView = (SurgeonFrameLayout) LayoutInflater.from(mContext).inflate(R.layout.surgeon_wrapper, rootView, false);
+                mSurgeonView.addView(content);
 
-                rootView.addView(mScalpelView);
+                rootView.addView(mSurgeonView);
 
                 Log.d(TAG, "Calabash mode activated");
             }
@@ -60,21 +60,26 @@ public class ScalpelManager
 
     public void toggle()
     {
-        mScalpelView.setLayerInteractionEnabled(!mScalpelView.isLayerInteractionEnabled());
+        mSurgeonView.setLayerInteractionEnabled(!mSurgeonView.isLayerInteractionEnabled());
     }
 
     public void toggleMoreInfo()
     {
-        mScalpelView.setDrawIds(!mScalpelView.isDrawingIds());
+        mSurgeonView.setDrawIds(!mSurgeonView.isDrawingIds());
     }
 
     public void toggleViews()
     {
-        mScalpelView.setDrawViews(!mScalpelView.isDrawingViews());
+        mSurgeonView.setDrawViews(!mSurgeonView.isDrawingViews());
     }
 
     public void removeLayer()
     {
-        mScalpelView.hideLayers();
+        mSurgeonView.hideLayers();
+    }
+
+    public void showLayer()
+    {
+        mSurgeonView.showLayers();
     }
 }

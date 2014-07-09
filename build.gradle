@@ -25,7 +25,6 @@ android {
     publishNonDefault true
 
     defaultConfig {
-        applicationId "de.asideas.surgeon"
         minSdkVersion 14
         targetSdkVersion 19
         versionCode 1

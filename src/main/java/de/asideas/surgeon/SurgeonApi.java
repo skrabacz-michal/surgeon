@@ -7,24 +7,26 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
+import java.util.HashMap;
+import java.util.Map;
 import de.asideas.surgeon.services.InspectorArcService;
 
 /**
  * Created by mskrabacz on 04/07/14.
  */
-public class ScalpelApi
+public class SurgeonApi
 {
-    private static final String TAG = ScalpelApi.class.getSimpleName();
+    private static final String TAG = SurgeonApi.class.getSimpleName();
 
     private static Application sApplication;
-
-    private static ScalpelManager sScalpelManger;
 
     private static int sStarted;
 
     private static int sStopped;
 
     private static boolean sConfigurationChanged;
+
+    private static Map<String, SurgeonManager> sManagers = new HashMap<String, SurgeonManager>();
 
     private static Application.ActivityLifecycleCallbacks activityLifecycleCallbacks = new Application.ActivityLifecycleCallbacks()
     {
@@ -33,7 +35,8 @@ public class ScalpelApi
         {
             Log.d(TAG, "onActivityCreated");
 
-            sScalpelManger = new ScalpelManager(activity);
+            SurgeonManager scalpelManger = new SurgeonManager(activity);
+            sManagers.put(activity.getComponentName().getPackageName() + activity.getComponentName().getClassName(), scalpelManger);
         }
 
         @Override
@@ -41,7 +44,7 @@ public class ScalpelApi
         {
             Log.d(TAG, "onActivityStarted");
 
-            sScalpelManger.injectScalpel();
+            sManagers.get(activity.getComponentName().getPackageName() + activity.getComponentName().getClassName()).injectSurgeon();
 
             ++sStarted;
         }
@@ -51,7 +54,7 @@ public class ScalpelApi
         {
             Log.d(TAG, "onActivityResumed");
 
-            InspectorArcService.setScalpelManager(sScalpelManger);
+            InspectorArcService.setScalpelManager(sManagers.get(activity.getComponentName().getPackageName() + activity.getComponentName().getClassName()));
         }
 
         @Override
@@ -104,14 +107,12 @@ public class ScalpelApi
         @Override
         public void onLowMemory()
         {
-
         }
     };
 
-
     public static void start(Application application)
     {
-        ScalpelApi.sApplication = application;
+        SurgeonApi.sApplication = application;
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
         application.registerComponentCallbacks(componentCallbacks);
     }

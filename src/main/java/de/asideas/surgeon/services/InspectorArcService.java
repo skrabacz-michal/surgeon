@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.os.IBinder;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -11,9 +12,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.RelativeLayout;
 import de.asideas.surgeon.R;
-import de.asideas.surgeon.ScalpelManager;
+import de.asideas.surgeon.SurgeonManager;
+import de.asideas.surgeon.internal.Utils;
 import de.asideas.surgeon.internal.ccontrols.PieController;
 import de.asideas.surgeon.internal.ccontrols.PieItem;
 import de.asideas.surgeon.internal.ccontrols.PieRenderer;
@@ -32,9 +37,7 @@ public class InspectorArcService extends Service implements View.OnTouchListener
 
     private final static float sweep = FLOAT_PI_DIVIDED_BY_TWO / 2;
 
-    private static ScalpelManager scalpelManager;
-
-    private View topLeftView;
+    private static SurgeonManager scalpelManager;
 
     private float offsetX;
 
@@ -54,6 +57,12 @@ public class InspectorArcService extends Service implements View.OnTouchListener
 
     private RenderOverlay renderOverlay;
 
+    private Point mCenterPoint;
+
+    private View mControlHint;
+
+    private View mDragHint;
+
     @Override
     public IBinder onBind(Intent intent)
     {
@@ -67,18 +76,19 @@ public class InspectorArcService extends Service implements View.OnTouchListener
 
         wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
 
+        mCenterPoint = Utils.getScreenCenterPoint(this);
+
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_SYSTEM_ALERT, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
-        params.gravity = Gravity.TOP | Gravity.LEFT;
-        params.x = 0;
-        params.y = 0;
+        params.gravity = Gravity.CENTER;
 
         frame = (ViewGroup) LayoutInflater.from(getApplicationContext()).inflate(R.layout.pie_layout, null, false);
         frame.setOnTouchListener(this);
+        mControlHint = frame.findViewById(R.id.control_hint);
+        mDragHint = frame.findViewById(R.id.control_drag);
 
         wm.addView(frame, params);
 
         createMenu();
-
 
         frame.findViewById(R.id.control_hint).setOnTouchListener(new View.OnTouchListener()
         {
@@ -90,17 +100,6 @@ public class InspectorArcService extends Service implements View.OnTouchListener
                 return pieRenderer.onTouchEvent(event);
             }
         });
-
-        topLeftView = new View(this);
-
-        WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_SYSTEM_ALERT, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
-        topLeftParams.gravity = Gravity.LEFT | Gravity.TOP;
-        topLeftParams.x = 0;
-        topLeftParams.y = 0;
-        topLeftParams.width = 0;
-        topLeftParams.height = 0;
-
-        wm.addView(topLeftView, topLeftParams);
     }
 
     @Override
@@ -110,9 +109,7 @@ public class InspectorArcService extends Service implements View.OnTouchListener
         if (frame != null)
         {
             wm.removeView(frame);
-            wm.removeView(topLeftView);
             frame = null;
-            topLeftView = null;
         }
     }
 
@@ -135,18 +132,15 @@ public class InspectorArcService extends Service implements View.OnTouchListener
             offsetX = originalXPos - x;
             offsetY = originalYPos - y;
 
+
             // TODO msq -
             if (pieRenderer != null && pieRenderer.isVisible())
             {
                 pieRenderer.hide();
             }
-
         }
         else if (event.getAction() == MotionEvent.ACTION_MOVE)
         {
-            int[] topLeftLocationOnScreen = new int[2];
-            topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
-
             float x = event.getRawX();
             float y = event.getRawY();
 
@@ -160,8 +154,8 @@ public class InspectorArcService extends Service implements View.OnTouchListener
                 return false;
             }
 
-            params.x = newX - (topLeftLocationOnScreen[0]);
-            params.y = newY - (topLeftLocationOnScreen[1]);
+            params.x = (int) (x - (mCenterPoint.x / 2));
+            params.y = (int) (y - mCenterPoint.y / 2);
 
             wm.updateViewLayout(frame, params);
             moving = true;
@@ -177,7 +171,7 @@ public class InspectorArcService extends Service implements View.OnTouchListener
         return false;
     }
 
-    public static void setScalpelManager(ScalpelManager scalpelManager)
+    public static void setScalpelManager(SurgeonManager scalpelManager)
     {
         InspectorArcService.scalpelManager = scalpelManager;
     }
@@ -277,7 +271,7 @@ public class InspectorArcService extends Service implements View.OnTouchListener
             @Override
             public void onClick(de.asideas.surgeon.internal.ccontrols.PieItem item)
             {
-                scalpelManager.removeLayer();
+                scalpelManager.showLayer();
             }
         });
 
@@ -290,20 +284,34 @@ public class InspectorArcService extends Service implements View.OnTouchListener
     @Override
     public void onPieOpened(int centerX, int centerY)
     {
-        frame.addView(renderOverlay, new RelativeLayout.LayoutParams(-1, -1));
+        RelativeLayout.LayoutParams relativeParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        frame.addView(renderOverlay, relativeParams);
     }
 
     @Override
     public void onPieClosed()
     {
-        frame.removeView(renderOverlay);
+        if (frame != null)
+        {
+            frame.removeView(renderOverlay);
 
-        // TODO msq
-        toggleVisibility(View.VISIBLE);
+            // TODO msq
+            toggleVisibility(View.VISIBLE);
+
+            Animation fadeOut = new AlphaAnimation(0, 1);
+            fadeOut.setInterpolator(new AccelerateInterpolator());
+            fadeOut.setFillBefore(true);
+            fadeOut.setDuration(1600);
+            mControlHint.startAnimation(fadeOut);
+            mDragHint.startAnimation(fadeOut);
+        }
     }
 
     private void toggleVisibility(int visibility)
     {
+        mControlHint.clearAnimation();
+        mDragHint.clearAnimation();
+
         frame.findViewById(R.id.control_drag).setVisibility(visibility);
         frame.findViewById(R.id.control_hint).setVisibility(visibility);
     }
