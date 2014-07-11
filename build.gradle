@@ -1,6 +1,7 @@
 def buildVersionName = file('./version_name').getText()
 def buildVersionCode = file('./version_code').getText().toInteger()
 
+apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.library'
 
 buildscript
@@ -12,6 +13,7 @@ buildscript
     dependencies
     {
         classpath 'com.android.tools.build:gradle:0.12.+'
+        classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.10.+'
     }
 }
 

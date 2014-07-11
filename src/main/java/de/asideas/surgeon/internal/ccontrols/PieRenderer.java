@@ -515,8 +515,8 @@ public class PieRenderer extends OverlayRenderer
     public boolean onTouchEvent(MotionEvent evt)
     {
         // FIXME msq
-        float x = evt.getRawX() - Utils.dpToPx(getContext(), 12);
-        float y = evt.getRawY() - Utils.dpToPx(getContext(), 10);
+        float x = evt.getRawX();// - Utils.dpToPx(getContext(), 12);
+        float y = evt.getRawY() - Utils.dpToPx(getContext(), 20);
 
         int action = evt.getActionMasked();
         PointF polar = getPolar(x, y, !(mTapMode));

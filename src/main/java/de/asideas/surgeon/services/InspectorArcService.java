@@ -5,17 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.widget.RelativeLayout;
 import de.asideas.surgeon.R;
 import de.asideas.surgeon.SurgeonManager;
 import de.asideas.surgeon.internal.Utils;
@@ -24,7 +23,6 @@ import de.asideas.surgeon.internal.ccontrols.PieItem;
 import de.asideas.surgeon.internal.ccontrols.PieRenderer;
 import de.asideas.surgeon.internal.ccontrols.RenderOverlay;
 
-
 /**
  * Created by mskrabacz on 28/05/14.
  */
@@ -32,6 +30,11 @@ public class InspectorArcService extends Service implements View.OnTouchListener
 {
     private static final String TAG = InspectorArcService.class.getSimpleName();
 
+    private static final int LONG_PRESS_EVENT = 0x10;
+
+    private static final String MOTION_EVENT_KEY = "motion_event_key";
+
+    private static final double MIN_MOVE_DISTANCE = 0.5f;
 
     private static float FLOAT_PI_DIVIDED_BY_TWO = (float) Math.PI / 2;
 
@@ -53,15 +56,29 @@ public class InspectorArcService extends Service implements View.OnTouchListener
 
     private ViewGroup frame;
 
-    private PieRenderer pieRenderer;
+    private ViewGroup pieWrapper;
 
-    private RenderOverlay renderOverlay;
+    private PieRenderer pieRenderer;
 
     private Point mCenterPoint;
 
-    private View mControlHint;
+    private final Handler handler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg)
+        {
+            switch (msg.what)
+            {
+                case LONG_PRESS_EVENT:
+                    toggleVisibility(View.INVISIBLE);
 
-    private View mDragHint;
+                    MotionEvent event = msg.getData().getParcelable(MOTION_EVENT_KEY);
+                    pieRenderer.onTouchEvent(event);
+
+                    break;
+            }
+        }
+    };
 
     @Override
     public IBinder onBind(Intent intent)
@@ -83,43 +100,51 @@ public class InspectorArcService extends Service implements View.OnTouchListener
 
         frame = (ViewGroup) LayoutInflater.from(getApplicationContext()).inflate(R.layout.pie_layout, null, false);
         frame.setOnTouchListener(this);
-        mControlHint = frame.findViewById(R.id.control_hint);
-        mDragHint = frame.findViewById(R.id.control_drag);
 
         wm.addView(frame, params);
 
         createMenu();
-
-        frame.findViewById(R.id.control_hint).setOnTouchListener(new View.OnTouchListener()
-        {
-            @Override
-            public boolean onTouch(View v, MotionEvent event)
-            {
-                toggleVisibility(View.INVISIBLE);
-
-                return pieRenderer.onTouchEvent(event);
-            }
-        });
     }
 
     @Override
     public void onDestroy()
     {
         super.onDestroy();
-        if (frame != null)
+        try
         {
-            wm.removeView(frame);
-            frame = null;
+            if (frame != null)
+            {
+                wm.removeViewImmediate(frame);
+                frame = null;
+            }
+            if (pieWrapper != null)
+            {
+                wm.removeViewImmediate(pieWrapper);
+                pieWrapper = null;
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
+
+    private float x;
+
+    private float y;
 
     @Override
     public boolean onTouch(View v, MotionEvent event)
     {
+        if (pieRenderer.isVisible())
+        {
+            return pieRenderer.onTouchEvent(event);
+        }
+
         if (event.getAction() == MotionEvent.ACTION_DOWN)
         {
-            float x = event.getRawX();
-            float y = event.getRawY();
+            x = event.getRawX();
+            y = event.getRawY();
 
             moving = false;
 
@@ -132,33 +157,54 @@ public class InspectorArcService extends Service implements View.OnTouchListener
             offsetX = originalXPos - x;
             offsetY = originalYPos - y;
 
-
             // TODO msq -
             if (pieRenderer != null && pieRenderer.isVisible())
             {
                 pieRenderer.hide();
             }
+
+            Message msg = handler.obtainMessage(LONG_PRESS_EVENT);
+            Bundle data = new Bundle();
+            data.putParcelable(MOTION_EVENT_KEY, MotionEvent.obtain(event));
+            msg.setData(data);
+
+            handler.sendMessageDelayed(msg, 400);
         }
         else if (event.getAction() == MotionEvent.ACTION_MOVE)
         {
-            float x = event.getRawX();
-            float y = event.getRawY();
+            float dx = event.getRawX() - x;
+            float dy = event.getRawY() - y;
 
-            WindowManager.LayoutParams params = (WindowManager.LayoutParams) frame.getLayoutParams();
+            float value = x * dx + y * dy;
+            value = value < 0 ? value * -1 : value;
+            double distance = Math.sqrt(value);
 
-            int newX = (int) (offsetX + x);
-            int newY = (int) (offsetY + y);
-
-            if (Math.abs(newX - originalXPos) < 1 && Math.abs(newY - originalYPos) < 1 && !moving)
+            if (distance > MIN_MOVE_DISTANCE || distance == Float.NaN)
             {
-                return false;
+                x = event.getRawX();
+                y = event.getRawY();
+
+                handler.removeMessages(LONG_PRESS_EVENT);
+
+                WindowManager.LayoutParams params = (WindowManager.LayoutParams) frame.getLayoutParams();
+
+                int newX = (int) (offsetX + x);
+                int newY = (int) (offsetY + y);
+
+                if (Math.abs(newX - originalXPos) < 1 && Math.abs(newY - originalYPos) < 1 && !moving)
+                {
+                    return false;
+                }
+
+                params.x = (int) (x - (mCenterPoint.x / 2));
+                params.y = (int) (y - mCenterPoint.y / 2);
+
+                wm.updateViewLayout(frame, params);
+                moving = true;
             }
 
-            params.x = (int) (x - (mCenterPoint.x / 2));
-            params.y = (int) (y - mCenterPoint.y / 2);
-
-            wm.updateViewLayout(frame, params);
-            moving = true;
+            x = event.getRawX();
+            y = event.getRawY();
         }
         else if (event.getAction() == MotionEvent.ACTION_UP)
         {
@@ -183,7 +229,8 @@ public class InspectorArcService extends Service implements View.OnTouchListener
 
         final PieController pieController = new PieController(getApplicationContext(), pieRenderer);
 
-        renderOverlay = (RenderOverlay) LayoutInflater.from(getApplicationContext()).inflate(R.layout.render_overlay, frame, false);
+        pieWrapper = (ViewGroup) LayoutInflater.from(getApplicationContext()).inflate(R.layout.render_overlay, frame, false);
+        RenderOverlay renderOverlay = (RenderOverlay) pieWrapper.findViewById(R.id.render_overlay);
 
         final PieItem itemStart = pieController.makeItem(R.drawable.running);
         final PieItem itemStop = pieController.makeItem(R.drawable.stop_running);
@@ -298,8 +345,9 @@ public class InspectorArcService extends Service implements View.OnTouchListener
     @Override
     public void onPieOpened(int centerX, int centerY)
     {
-        RelativeLayout.LayoutParams relativeParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        frame.addView(renderOverlay, relativeParams);
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.TYPE_SYSTEM_ALERT, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+        params.gravity = Gravity.CENTER;
+        wm.addView(pieWrapper, params);
     }
 
     @Override
@@ -307,26 +355,15 @@ public class InspectorArcService extends Service implements View.OnTouchListener
     {
         if (frame != null)
         {
-            frame.removeView(renderOverlay);
+            wm.removeViewImmediate(pieWrapper);
 
-            // TODO msq
             toggleVisibility(View.VISIBLE);
-
-            Animation fadeOut = new AlphaAnimation(0, 1);
-            fadeOut.setInterpolator(new AccelerateInterpolator());
-            fadeOut.setFillBefore(true);
-            fadeOut.setDuration(1600);
-            mControlHint.startAnimation(fadeOut);
-            mDragHint.startAnimation(fadeOut);
         }
     }
 
     private void toggleVisibility(int visibility)
     {
-        mControlHint.clearAnimation();
-        mDragHint.clearAnimation();
-
-        frame.findViewById(R.id.control_drag).setVisibility(visibility);
         frame.findViewById(R.id.control_hint).setVisibility(visibility);
     }
 }
+
