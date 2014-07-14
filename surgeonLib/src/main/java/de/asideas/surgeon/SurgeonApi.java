@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import de.asideas.surgeon.services.InspectorArcService;
@@ -25,6 +26,8 @@ public class SurgeonApi
     private static int sStopped;
 
     private static boolean sConfigurationChanged;
+
+    private static boolean surgeonEnabled;
 
     private static Map<String, SurgeonManager> sManagers = new HashMap<String, SurgeonManager>();
 
@@ -110,11 +113,17 @@ public class SurgeonApi
         }
     };
 
+
     public static void start(Application application)
     {
-        SurgeonApi.sApplication = application;
-        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
-        application.registerComponentCallbacks(componentCallbacks);
+        surgeonEnabled = checkSettings(application.getPackageName());
+
+        if (surgeonEnabled)
+        {
+            SurgeonApi.sApplication = application;
+            application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
+            application.registerComponentCallbacks(componentCallbacks);
+        }
     }
 
     private static void onEnteredBackground()
@@ -132,12 +141,37 @@ public class SurgeonApi
 
     public static void stop(Application application)
     {
-        if (application != null)
+        if (application != null && surgeonEnabled)
         {
             application.unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks);
             application.unregisterComponentCallbacks(componentCallbacks);
 
             stopService(application);
         }
+    }
+
+    private static boolean checkSettings(String packageName)
+    {
+        Boolean surgeonEnabled = false;
+        try
+        {
+            Class<?> clazz = Class.forName(packageName + ".BuildConfig");
+            Field setting = clazz.getField("ENABLE_SURGEON");
+            surgeonEnabled = (Boolean) setting.get(null);
+        }
+        catch (ClassNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (NoSuchFieldException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+
+        return surgeonEnabled;
     }
 }

@@ -27,29 +27,26 @@ public class SurgeonManager
 
     public void injectSurgeon()
     {
-        if (BuildConfig.ENABLE_CALABASH)
+        ViewGroup rootView = (ViewGroup) mContext.findViewById(android.R.id.content).getRootView();
+        int count = rootView.getChildCount();
+        if (count > 0)
         {
-            ViewGroup rootView = (ViewGroup) mContext.findViewById(android.R.id.content).getRootView();
-            int count = rootView.getChildCount();
-            if (count > 0)
-            {
-                drawArc();
+            drawArc();
 
-                View content = rootView.getChildAt(0);
+            View content = rootView.getChildAt(0);
 
-                rootView.removeView(content);
+            rootView.removeView(content);
 
-                mSurgeonView = (SurgeonFrameLayout) LayoutInflater.from(mContext).inflate(R.layout.surgeon_wrapper, rootView, false);
-                mSurgeonView.addView(content);
+            mSurgeonView = (SurgeonFrameLayout) LayoutInflater.from(mContext).inflate(R.layout.surgeon_wrapper, rootView, false);
+            mSurgeonView.addView(content);
 
-                rootView.addView(mSurgeonView);
+            rootView.addView(mSurgeonView);
 
-                Log.d(TAG, "Calabash mode activated");
-            }
-            else
-            {
-                Log.d(TAG, "Activity doesn't set content view ");
-            }
+            Log.d(TAG, "Calabash mode activated");
+        }
+        else
+        {
+            Log.d(TAG, "Activity doesn't set content view ");
         }
     }
 
