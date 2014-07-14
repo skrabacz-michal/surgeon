@@ -40,14 +40,13 @@ public class SurgeonApi
 
             SurgeonManager scalpelManger = new SurgeonManager(activity);
             sManagers.put(activity.getComponentName().getPackageName() + activity.getComponentName().getClassName(), scalpelManger);
+            scalpelManger.injectSurgeon();
         }
 
         @Override
         public void onActivityStarted(Activity activity)
         {
             Log.d(TAG, "onActivityStarted");
-
-            sManagers.get(activity.getComponentName().getPackageName() + activity.getComponentName().getClassName()).injectSurgeon();
 
             ++sStarted;
         }
@@ -58,6 +57,8 @@ public class SurgeonApi
             Log.d(TAG, "onActivityResumed");
 
             InspectorArcService.setScalpelManager(sManagers.get(activity.getComponentName().getPackageName() + activity.getComponentName().getClassName()));
+
+            activity.startService(new Intent(activity, InspectorArcService.class));
         }
 
         @Override
@@ -96,6 +97,8 @@ public class SurgeonApi
         public void onActivityDestroyed(Activity activity)
         {
             Log.d(TAG, "onActivityDestroyed");
+
+            sManagers.remove(activity.getComponentName().getPackageName() + activity.getComponentName().getClassName());
         }
     };
 

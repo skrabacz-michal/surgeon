@@ -31,8 +31,6 @@ public class SurgeonManager
         int count = rootView.getChildCount();
         if (count > 0)
         {
-            drawArc();
-
             View content = rootView.getChildAt(0);
 
             rootView.removeView(content);
@@ -48,11 +46,6 @@ public class SurgeonManager
         {
             Log.d(TAG, "Activity doesn't set content view ");
         }
-    }
-
-    private void drawArc()
-    {
-        mContext.startService(new Intent(mContext, InspectorArcService.class));
     }
 
     public void toggle()

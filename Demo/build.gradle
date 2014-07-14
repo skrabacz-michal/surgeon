@@ -27,7 +27,7 @@ android {
     }
     buildTypes {
         debug {
-            buildConfigField "Boolean", "ENABLE_SURGEON", "true"
+            buildConfigField "Boolean", "ENABLE_SURGEON", "false"
         }
         surgeon {
             runProguard false
