@@ -34,7 +34,7 @@ public class InspectorArcService extends Service implements View.OnTouchListener
 
     private static final String MOTION_EVENT_KEY = "motion_event_key";
 
-    private static final double MIN_MOVE_DISTANCE = 0.5f;
+    private static double MIN_MOVE_DISTANCE = 40.0f;
 
     private static float FLOAT_PI_DIVIDED_BY_TWO = (float) Math.PI / 2;
 
@@ -90,6 +90,8 @@ public class InspectorArcService extends Service implements View.OnTouchListener
     public void onCreate()
     {
         super.onCreate();
+
+        MIN_MOVE_DISTANCE = Utils.dpToPx(this, 64) / 2;
 
         wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
 
