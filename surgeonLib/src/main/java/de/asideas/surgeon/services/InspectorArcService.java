@@ -34,6 +34,8 @@ public class InspectorArcService extends Service implements View.OnTouchListener
 
     private static final String MOTION_EVENT_KEY = "motion_event_key";
 
+    private static final long LONG_PRESS_TIMEOUT = 300;
+
     private static double MIN_MOVE_DISTANCE = 40.0f;
 
     private static float FLOAT_PI_DIVIDED_BY_TWO = (float) Math.PI / 2;
@@ -71,6 +73,8 @@ public class InspectorArcService extends Service implements View.OnTouchListener
             {
                 case LONG_PRESS_EVENT:
                     toggleVisibility(View.INVISIBLE);
+
+                    addPieLayer();
 
                     MotionEvent event = msg.getData().getParcelable(MOTION_EVENT_KEY);
                     pieRenderer.onTouchEvent(event);
@@ -170,7 +174,7 @@ public class InspectorArcService extends Service implements View.OnTouchListener
             data.putParcelable(MOTION_EVENT_KEY, MotionEvent.obtain(event));
             msg.setData(data);
 
-            handler.sendMessageDelayed(msg, 400);
+            handler.sendMessageDelayed(msg, LONG_PRESS_TIMEOUT);
         }
         else if (event.getAction() == MotionEvent.ACTION_MOVE)
         {
@@ -346,6 +350,11 @@ public class InspectorArcService extends Service implements View.OnTouchListener
 
     @Override
     public void onPieOpened(int centerX, int centerY)
+    {
+//        addPieLayer();
+    }
+
+    private void addPieLayer()
     {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.TYPE_SYSTEM_ALERT, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.CENTER;

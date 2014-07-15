@@ -72,7 +72,7 @@ public class PieRenderer extends OverlayRenderer
 
     private static final int DIAL_HORIZONTAL = 157;
 
-    private static final long PIE_FADE_IN_DURATION = 200;
+    private static final long PIE_FADE_IN_DURATION = 100;
 
     private static final long PIE_XFADE_DURATION = 200;
 

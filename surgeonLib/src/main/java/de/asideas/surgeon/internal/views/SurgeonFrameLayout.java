@@ -7,7 +7,9 @@ import android.graphics.Camera;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -26,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.graphics.Paint.ANTI_ALIAS_FLAG;
+import static android.graphics.Paint.Style.FILL;
 import static android.graphics.Paint.Style.STROKE;
 import static android.graphics.Typeface.NORMAL;
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
@@ -74,7 +77,9 @@ public class SurgeonFrameLayout extends FrameLayout
 
     private static final int CHROME_COLOR = 0xFF888888;
 
-    private static final int CHROME_SHADOW_COLOR = 0xFF000000;
+    private static final int CHROME_COLOR_FIX = 0x00FFFFFF;
+
+    private static final int CHROME_SHADOW_COLOR = 0xFFFFFF;
 
     private static final int TEXT_OFFSET_DP = 2;
 
