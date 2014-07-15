@@ -10,10 +10,13 @@ import android.app.FragmentTransaction;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -133,7 +136,11 @@ public class MyActivity extends Activity
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
 
+        private static final String TAG = PlaceholderFragment.class.getSimpleName();
+
         private int mSectionNumber;
+
+        private GestureDetector mGestureDetector;
 
         /**
          * Returns a new instance of this fragment for the given section
@@ -158,11 +165,90 @@ public class MyActivity extends Activity
         }
 
         @Override
+        public void onCreate(Bundle savedInstanceState)
+        {
+            super.onCreate(savedInstanceState);
+
+            mGestureDetector = new GestureDetector(getActivity(), new GestureDetector.OnGestureListener()
+            {
+                @Override
+                public boolean onDown(MotionEvent e)
+                {
+                    Log.d(TAG, "onDown");
+                    return false;
+                }
+
+                @Override
+                public void onShowPress(MotionEvent e)
+                {
+                    Log.d(TAG, "onShowPress");
+                }
+
+                @Override
+                public boolean onSingleTapUp(MotionEvent e)
+                {
+                    Log.d(TAG, "onSingleTapUp");
+                    return false;
+                }
+
+                @Override
+                public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
+                {
+                    Log.d(TAG, "onScroll");
+                    return false;
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e)
+                {
+                    Log.d(TAG, "onLongPress");
+                }
+
+                @Override
+                public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+                {
+                    Log.d(TAG, "onFling");
+                    return false;
+                }
+            });
+        }
+
+        @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState)
         {
             View rootView = inflater.inflate(R.layout.fragment_my, container, false);
             ((TextView) rootView.findViewById(R.id.section_label)).setText("Label " + mSectionNumber);
+
+            rootView.findViewById(R.id.action_click).setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    Log.d(TAG, "onClick");
+                }
+            });
+
+            rootView.findViewById(R.id.action_long_press).setOnLongClickListener(new View.OnLongClickListener()
+            {
+                @Override
+                public boolean onLongClick(View v)
+                {
+                    Log.d(TAG, "onLongClick");
+                    return true;
+                }
+            });
+
+            rootView.findViewById(R.id.action_double_click).setOnTouchListener(new View.OnTouchListener()
+            {
+                @Override
+                public boolean onTouch(View v, MotionEvent event)
+                {
+                    return mGestureDetector.onTouchEvent(event);
+                }
+            });
+
+
             return rootView;
         }
     }

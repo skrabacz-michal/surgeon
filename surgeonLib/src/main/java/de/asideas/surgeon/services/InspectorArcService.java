@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -319,7 +320,11 @@ public class InspectorArcService extends Service implements View.OnTouchListener
         pieRenderer.addItem(itemShowDetails);
         pieRenderer.addItem(itemLayers);
         pieRenderer.addItem(itemClose);
-        pieRenderer.addItem(itemRecord);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
+        {
+            pieRenderer.addItem(itemRecord);
+        }
 
         PieItem itemLayersHide = pieController.makeItem(R.drawable.remove_layer);
         itemLayersHide.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO - sweep, sweep);

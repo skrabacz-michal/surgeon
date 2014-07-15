@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import de.asideas.surgeon.services.InspectorArcService;
+import de.asideas.surgeon.services.StepRecorderService;
 
 /**
  * Created by mskrabacz on 04/07/14.
@@ -40,7 +41,6 @@ public class SurgeonApi
 
             SurgeonManager scalpelManger = new SurgeonManager(activity);
             sManagers.put(activity.getComponentName().getPackageName() + activity.getComponentName().getClassName(), scalpelManger);
-            scalpelManger.injectSurgeon();
         }
 
         @Override
@@ -48,6 +48,7 @@ public class SurgeonApi
         {
             Log.d(TAG, "onActivityStarted");
 
+            sManagers.get(activity.getComponentName().getPackageName() + activity.getComponentName().getClassName()).injectSurgeon();
             ++sStarted;
         }
 
@@ -127,6 +128,8 @@ public class SurgeonApi
             application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
             application.registerComponentCallbacks(componentCallbacks);
         }
+
+        StepRecorderService.sParentPackageName = application.getPackageName();
     }
 
     private static void onEnteredBackground()

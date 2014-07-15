@@ -10,52 +10,59 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import java.util.List;
+import de.asideas.surgeon.BuildConfig;
 
 public class StepRecorderService extends AccessibilityService
 {
     private static final String TAG = StepRecorderService.class.getSimpleName();
+
+    public static String sParentPackageName;
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onCreate()
     {
         Log.d(TAG, "onCreate");
-
-        if (getServiceInfo() != null)
-        {
-            getServiceInfo().flags = AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE;
-        }
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onServiceConnected()
     {
         super.onServiceConnected();
 
         Log.d(TAG, "onServiceConnected");
+
+        if (getServiceInfo() != null)
+        {
+            AccessibilityServiceInfo info = getServiceInfo();
+
+            if (info.packageNames == null)
+            {
+                info.packageNames = new String[1];
+                info.packageNames[0] = sParentPackageName;
+            }
+
+            setServiceInfo(info);
+        }
     }
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event)
     {
-        String type = AccessibilityEvent.eventTypeToString(event.getEventType());
+        int type = event.getEventType();
+        String typeName = AccessibilityEvent.eventTypeToString(type);
         String clazz = event.getClassName().toString();
 
+        String id = getViewId(event);
+        String marked = getViewMarked(event);
+        String desc = getDesc(event);
 
-        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_HOVER_ENTER)
+        if (type == AccessibilityEvent.TYPE_VIEW_CLICKED || type == AccessibilityEvent.TYPE_VIEW_LONG_CLICKED || type == AccessibilityEvent.TYPE_GESTURE_DETECTION_START || type == AccessibilityEvent.TYPE_GESTURE_DETECTION_END || type == AccessibilityEvent.TYPE_VIEW_SCROLLED)
         {
-            String id = getViewId(event);
-            String marked = getViewMarked(event);
-            String desc = getDesc(event);
-            getPositionOnList(event);
-
             StringBuilder query = new StringBuilder();
 
-//            query.append(type).append(" --> ");
-//            boolean sourceAvailable = event.getSource() != null;
-//            query.append(sourceAvailable).append(" ---> ");
-
-            query.append("touch(\"").append(clazz).append(" ");
+            query.append(":ID => \"").append(clazz).append(" ");
             if (!TextUtils.isEmpty(id))
             {
                 query.append("id:'").append(id).append("' ");
@@ -71,10 +78,14 @@ public class StepRecorderService extends AccessibilityService
                 query.append("contentDescription:'").append(desc).append("' ");
             }
 
-            query.append("\")");
+            query.append("\"");
 
-            Log.d(TAG, query.toString());
-//            Log.d(TAG, "\n\n");
+            Log.d(TAG, "Action: " + typeName);
+            Log.d(TAG, "--------> " + query.toString());
+        }
+        else
+        {
+            Log.d("XX", " " + typeName + " ------ " + event.toString());
         }
 //
 //        Log.d(TAG, "onAccessibilityEvent " + type + " | " + clazz + " | " + id);

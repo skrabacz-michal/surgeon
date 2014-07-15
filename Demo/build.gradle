@@ -24,10 +24,12 @@ android {
         versionCode 1
         versionName "1.0"
         signingConfig signingConfigs.debug
+
+        buildConfigField "Boolean", "ENABLE_SURGEON", "false"
     }
     buildTypes {
         debug {
-            buildConfigField "Boolean", "ENABLE_SURGEON", "false"
+            buildConfigField "Boolean", "ENABLE_SURGEON", "true"
         }
         surgeon {
             runProguard false
