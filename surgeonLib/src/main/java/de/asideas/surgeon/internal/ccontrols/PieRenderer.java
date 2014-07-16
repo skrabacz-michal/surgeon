@@ -20,20 +20,22 @@ package de.asideas.surgeon.internal.ccontrols;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.*;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Point;
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.Transformation;
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorListenerAdapter;
-import com.nineoldandroids.view.ViewHelper;
-import com.nineoldandroids.view.ViewPropertyAnimator;
 import java.util.ArrayList;
 import java.util.List;
 import de.asideas.surgeon.R;
@@ -43,7 +45,7 @@ public class PieRenderer extends OverlayRenderer
         implements FocusIndicator
 {
 
-    private static final String TAG = "CAM Pie";
+    private static final String TAG = PieRenderer.class.getSimpleName();
 
     // Sometimes continuous autofocus starts and stops several times quickly.
     // These states are used to make sure the animation is run for at least some
@@ -443,17 +445,30 @@ public class PieRenderer extends OverlayRenderer
     private void startFadeOut()
     {
         //Delete ApiHelper
-        ViewPropertyAnimator.animate(mOverlay).alpha(0).setListener(new AnimatorListenerAdapter()
+        AlphaAnimation alphaAnimation = new AlphaAnimation(1, 0);
+        alphaAnimation.setDuration(PIE_SELECT_FADE_DURATION);
+
+        alphaAnimation.setAnimationListener(new AnimationListener()
         {
             @Override
-            public void onAnimationEnd(Animator animation)
+            public void onAnimationStart(Animation animation)
+            {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation)
             {
                 deselect();
                 show(false);
-                ViewHelper.setAlpha(mOverlay, 1);
-                super.onAnimationEnd(animation);
+                mOverlay.setAlpha(1);
             }
-        }).setDuration(PIE_SELECT_FADE_DURATION);
+
+            @Override
+            public void onAnimationRepeat(Animation animation)
+            {
+            }
+        });
+        mOverlay.startAnimation(alphaAnimation);
     }
 
     @Override

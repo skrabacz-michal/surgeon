@@ -21,7 +21,6 @@ package de.asideas.surgeon.internal.qcontrols;
 
 import android.view.View;
 
-import com.nineoldandroids.view.ViewHelper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,7 +100,7 @@ public class PieItem
     {
         if (mView != null)
         {
-            ViewHelper.setAlpha(mView, alpha);
+            mView.setAlpha(alpha);
         }
     }
 
@@ -109,7 +108,7 @@ public class PieItem
     {
         if (mView != null)
         {
-            return ViewHelper.getAlpha(mView);
+            return mView.getAlpha();
         }
         return 1;
     }

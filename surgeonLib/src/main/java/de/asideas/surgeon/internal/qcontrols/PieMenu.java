@@ -19,6 +19,9 @@
 
 package de.asideas.surgeon.internal.qcontrols;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -34,10 +37,6 @@ import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorListenerAdapter;
-import com.nineoldandroids.animation.ValueAnimator;
-import com.nineoldandroids.view.ViewHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -396,7 +395,7 @@ public class PieMenu extends FrameLayout
             // draw the item view
             View view = item.getView();
             int state = canvas.save();
-            canvas.translate(ViewHelper.getX(view), ViewHelper.getY(view));
+            canvas.translate(view.getX(), view.getY());
             view.draw(canvas);
             canvas.restoreToCount(state);
         }
@@ -521,7 +520,7 @@ public class PieMenu extends FrameLayout
             else if (mCurrentItem != item)
             {
                 onEnter(item);
-                if ((item != null) && item.isPieView() && (item.getView() != null))
+                if (item.isPieView() && (item.getView() != null))
                 {
                     int cx = item.getView().getLeft() + (onTheLeft()
                             ? item.getView().getWidth() : 0);
