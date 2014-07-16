@@ -20,6 +20,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import hugo.weaving.DebugLog;
 
 
 public class MyActivity extends Activity
@@ -41,6 +42,7 @@ public class MyActivity extends Activity
     ViewPager mViewPager;
 
     @Override
+    @DebugLog
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -175,7 +177,7 @@ public class MyActivity extends Activity
                 public boolean onDown(MotionEvent e)
                 {
                     Log.d(TAG, "onDown");
-                    return false;
+                    return true;
                 }
 
                 @Override
@@ -195,7 +197,7 @@ public class MyActivity extends Activity
                 public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
                 {
                     Log.d(TAG, "onScroll");
-                    return false;
+                    return true;
                 }
 
                 @Override
@@ -208,7 +210,7 @@ public class MyActivity extends Activity
                 public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
                 {
                     Log.d(TAG, "onFling");
-                    return false;
+                    return true;
                 }
             });
         }
@@ -239,7 +241,7 @@ public class MyActivity extends Activity
                 }
             });
 
-            rootView.findViewById(R.id.action_double_click).setOnTouchListener(new View.OnTouchListener()
+            rootView.setOnTouchListener(new View.OnTouchListener()
             {
                 @Override
                 public boolean onTouch(View v, MotionEvent event)

@@ -35,6 +35,7 @@ import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.MotionEvent.ACTION_POINTER_UP;
 import static android.view.MotionEvent.INVALID_POINTER_ID;
+import de.asideas.surgeon.BuildConfig;
 import de.asideas.surgeon.internal.utils.LayoutTraverser;
 
 /**
@@ -77,8 +78,6 @@ public class SurgeonFrameLayout extends FrameLayout
 
     private static final int CHROME_COLOR = 0xFF888888;
 
-    private static final int CHROME_COLOR_FIX = 0x00FFFFFF;
-
     private static final int CHROME_SHADOW_COLOR = 0xFFFFFF;
 
     private static final int TEXT_OFFSET_DP = 2;
@@ -87,7 +86,7 @@ public class SurgeonFrameLayout extends FrameLayout
 
     private static final int CHILD_COUNT_ESTIMATION = 25;
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = BuildConfig.DEBUG;
 
     private static void log(String message, Object... args)
     {

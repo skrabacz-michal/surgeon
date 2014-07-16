@@ -75,8 +75,6 @@ public class InspectorArcService extends Service implements View.OnTouchListener
                 case LONG_PRESS_EVENT:
                     toggleVisibility(View.INVISIBLE);
 
-                    addPieLayer();
-
                     MotionEvent event = msg.getData().getParcelable(MOTION_EVENT_KEY);
                     pieRenderer.onTouchEvent(event);
 
@@ -84,6 +82,8 @@ public class InspectorArcService extends Service implements View.OnTouchListener
             }
         }
     };
+
+    private boolean mIsOpened = false;
 
     @Override
     public IBinder onBind(Intent intent)
@@ -124,7 +124,7 @@ public class InspectorArcService extends Service implements View.OnTouchListener
                 wm.removeViewImmediate(frame);
                 frame = null;
             }
-            if (pieWrapper != null)
+            if (pieWrapper != null && mIsOpened)
             {
                 wm.removeViewImmediate(pieWrapper);
                 pieWrapper = null;
@@ -356,7 +356,11 @@ public class InspectorArcService extends Service implements View.OnTouchListener
     @Override
     public void onPieOpened(int centerX, int centerY)
     {
-//        addPieLayer();
+        if (!mIsOpened)
+        {
+            addPieLayer();
+            mIsOpened = true;
+        }
     }
 
     private void addPieLayer()
@@ -369,11 +373,12 @@ public class InspectorArcService extends Service implements View.OnTouchListener
     @Override
     public void onPieClosed()
     {
-        if (frame != null)
+        if (pieWrapper != null && mIsOpened)
         {
             wm.removeViewImmediate(pieWrapper);
 
             toggleVisibility(View.VISIBLE);
+            mIsOpened = false;
         }
     }
 

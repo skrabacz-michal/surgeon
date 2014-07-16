@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:accessibilityEventTypes="typeAllMask"
     android:accessibilityFeedbackType="feedbackAllMask"
-    android:accessibilityFlags="flagReportViewIds"
+    android:accessibilityFlags="flagReportViewIds|flagRequestTouchExplorationMode"
     android:notificationTimeout="100"
     android:canRetrieveWindowContent="true"
     tools:ignore="UnusedAttribute"/>

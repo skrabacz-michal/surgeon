@@ -104,6 +104,8 @@ public class PieRenderer extends OverlayRenderer
 
     private Paint mSubPaint;
 
+    private Paint mStrokePaint;
+
     // touch handling
     private PieItem mCurrentItem;
 
@@ -213,13 +215,21 @@ public class PieRenderer extends OverlayRenderer
         mSelectedPaint = new Paint();
         mSelectedPaint.setColor(Color.argb(255, 51, 181, 229));
         mSelectedPaint.setAntiAlias(true);
+
         mSubPaint = new Paint();
         mSubPaint.setAntiAlias(true);
-        mSubPaint.setColor(Color.argb(200, 250, 230, 128));
+        mSubPaint.setColor(0xBBFFFFFF);
+
+        mStrokePaint = new Paint();
+        mStrokePaint.setAntiAlias(true);
+        mStrokePaint.setColor(0xBB000000);
+        mStrokePaint.setStyle(Paint.Style.STROKE);
+
         mFocusPaint = new Paint();
         mFocusPaint.setAntiAlias(true);
         mFocusPaint.setColor(Color.WHITE);
         mFocusPaint.setStyle(Paint.Style.STROKE);
+
         mSuccessColor = Color.GREEN;
         mFailColor = Color.RED;
         mCircle = new RectF();
@@ -388,7 +398,7 @@ public class PieRenderer extends OverlayRenderer
             int w = item.getIntrinsicWidth();
             int h = item.getIntrinsicHeight();
             // move views to outer border
-            int r = inner + (outer - inner) * 2 / 3;
+            int r = inner + (outer - inner) * 5 / 9;
             int x = (int) (r * Math.cos(angle));
             int y = mCenter.y - (int) (r * Math.sin(angle)) - h / 2;
             x = mCenter.x + x - w / 2;
@@ -494,15 +504,16 @@ public class PieRenderer extends OverlayRenderer
         {
             if (item.getPath() != null)
             {
-                if (item.isSelected())
-                {
-                    Paint p = mSelectedPaint;
-                    int state = canvas.save();
-                    float r = getDegrees(item.getStartAngle());
-                    canvas.rotate(r, mCenter.x, mCenter.y);
-                    canvas.drawPath(item.getPath(), p);
-                    canvas.restoreToCount(state);
-                }
+                Paint paint = item.isSelected() ? mSelectedPaint : mSubPaint;
+
+                int state = canvas.save();
+                float r = getDegrees(item.getStartAngle());
+                canvas.rotate(r, mCenter.x, mCenter.y);
+                canvas.drawPath(item.getPath(), paint);
+                canvas.drawPath(item.getPath(), mStrokePaint);
+
+                canvas.restoreToCount(state);
+
                 alpha = alpha * (item.isEnabled() ? 1 : 0.3f);
                 // draw the item view
                 item.setAlpha(alpha);
@@ -515,7 +526,7 @@ public class PieRenderer extends OverlayRenderer
     public boolean onTouchEvent(MotionEvent evt)
     {
         // FIXME msq
-        float x = evt.getRawX();// - Utils.dpToPx(getContext(), 12);
+        float x = evt.getRawX();
         float y = evt.getRawY() - Utils.dpToPx(getContext(), 20);
 
         int action = evt.getActionMasked();
@@ -779,22 +790,6 @@ public class PieRenderer extends OverlayRenderer
     private int getRandomRange()
     {
         return (int) (-60 + 120 * Math.random());
-    }
-
-    @Override
-    public void layout(int l, int t, int r, int b)
-    {
-        super.layout(l, t, r, b);
-//        mCenterX = (r - l) / 4;
-//        mCenterY = (b - t) / 2;
-//        mFocusX = mCenterX;
-//        mFocusY = mCenterY;
-//        setCircle(mFocusX, mFocusY);
-//        if (isVisible() && mState == STATE_PIE)
-//        {
-//            setCenter(mCenterX, mCenterY);
-//            layoutPie();
-//        }
     }
 
     private void setCircle(int cx, int cy)
