@@ -1,5 +1,6 @@
 package de.asideas.surgeon.services;
 
+import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -219,6 +220,7 @@ public class InspectorArcService extends Service implements View.OnTouchListener
             {
                 return true;
             }
+            handler.removeMessages(LONG_PRESS_EVENT);
         }
 
         return false;

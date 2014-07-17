@@ -16,6 +16,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
@@ -598,11 +599,14 @@ public class SurgeonFrameLayout extends FrameLayout
                     if (visibilities.get(i))
                     {
                         View child = viewGroup.getChildAt(i);
-                        //noinspection ConstantConditions
-                        child.setVisibility(VISIBLE);
-                        LayeredView childLayeredView = layeredViewPool.obtain();
-                        childLayeredView.set(child, layer + 1);
-                        layeredViewQueue.add(childLayeredView);
+                        if (!(child instanceof SurfaceView))
+                        {
+                            //noinspection ConstantConditions
+                            child.setVisibility(VISIBLE);
+                            LayeredView childLayeredView = layeredViewPool.obtain();
+                            childLayeredView.set(child, layer + 1);
+                            layeredViewQueue.add(childLayeredView);
+                        }
                     }
                 }
             }
