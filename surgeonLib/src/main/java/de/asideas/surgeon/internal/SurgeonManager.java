@@ -1,13 +1,12 @@
-package de.asideas.surgeon;
+package de.asideas.surgeon.internal;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import de.asideas.surgeon.R;
 import de.asideas.surgeon.internal.views.SurgeonFrameLayout;
-import de.asideas.surgeon.services.InspectorArcService;
 
 /**
  * Created by mskrabacz on 03/07/14.

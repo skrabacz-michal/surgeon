@@ -10,6 +10,7 @@ import android.util.Log;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import de.asideas.surgeon.internal.SurgeonManager;
 import de.asideas.surgeon.services.InspectorArcService;
 import de.asideas.surgeon.services.StepRecorderService;
 
@@ -116,7 +117,6 @@ public class SurgeonApi
         {
         }
     };
-
 
     public static void start(Application application)
     {

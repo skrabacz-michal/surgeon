@@ -59,5 +59,7 @@ android.libraryVariants.all { variant ->
         options.linksOffline("http://d.android.com/reference", "${android.sdkDirectory}/docs/reference");
         exclude '**/BuildConfig.java'
         exclude '**/R.java'
+        exclude '**/internal/**'
+        exclude '**/services/**'
     }
 }

@@ -1,6 +1,5 @@
 package de.asideas.surgeon.services;
 
-import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import de.asideas.surgeon.R;
-import de.asideas.surgeon.SurgeonManager;
+import de.asideas.surgeon.internal.SurgeonManager;
 import de.asideas.surgeon.internal.Utils;
 import de.asideas.surgeon.internal.ccontrols.PieController;
 import de.asideas.surgeon.internal.ccontrols.PieItem;
