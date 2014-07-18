@@ -4,13 +4,18 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import de.asideas.surgeon.BuildConfig;
+import de.asideas.surgeon.internal.network.NetworkConnection;
+import de.asideas.surgeon.internal.network.NetworkException;
 
 public class StepRecorderService extends AccessibilityService
 {
@@ -18,11 +23,39 @@ public class StepRecorderService extends AccessibilityService
 
     public static String sParentPackageName;
 
+    private NetworkConnection conn;
+
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onCreate()
     {
         Log.d(TAG, "onCreate");
+
+        conn = NetworkConnection.post("http://surgeon.herokuapp.com/register/2");
+    }
+
+    private void sendData(final String key, final String data)
+    {
+        new AsyncTask<Void, Void, Void>()
+        {
+            @Override
+            protected Void doInBackground(Void... params)
+            {
+                try
+                {
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.put(key, data);
+                    conn.data(map);
+                    conn.getString();
+                }
+                catch (NetworkException e)
+                {
+                    e.printStackTrace();
+                }
+
+                return null;
+            }
+        }.execute();
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -82,6 +115,8 @@ public class StepRecorderService extends AccessibilityService
 
             Log.d(TAG, "Action: " + typeName);
             Log.d(TAG, "--------> " + query.toString());
+
+            sendData(typeName, query.toString());
         }
         else
         {
