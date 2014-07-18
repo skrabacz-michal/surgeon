@@ -137,7 +137,7 @@ public class SurgeonApi
         stopService(sApplication);
     }
 
-    public static void stopService(Application application)
+    private static void stopService(Application application)
     {
         if (application != null)
         {
