@@ -52,7 +52,7 @@ android.libraryVariants.all { variant ->
 
     task("genJavadoc${variant.name.capitalize()}", type: Javadoc) {
 
-        title = "$name $version API"
+        title = "${project.name.capitalize()} ${buildVersionName} API"
         source = variant.javaCompile.source
 
         description "Generates Javadoc for $variant.name."
