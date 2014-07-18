@@ -49,17 +49,25 @@ dependencies {
 }
 
 android.libraryVariants.all { variant ->
-    task("genJavadoc${variant.name}", type: Javadoc) {
+
+    task("genJavadoc${variant.name.capitalize()}", type: Javadoc) {
+
         title = "$name $version API"
-        description "Generates Javadoc for $variant.name."
         source = variant.javaCompile.source
-        ext.androidJar ="${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
-        classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
-        options.links("http://docs.oracle.com/javase/7/docs/api/");
-        options.linksOffline("http://d.android.com/reference", "${android.sdkDirectory}/docs/reference");
+
+        description "Generates Javadoc for $variant.name."
+
+        def androidJar ="${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+        classpath = files(androidJar) + files("build/intermediates/classes/${variant.name}")
+
+        options {
+            links("http://docs.oracle.com/javase/7/docs/api/")
+            linksOffline("http://d.android.com/reference", "${android.sdkDirectory}/docs/reference");
+        }
+
+        exclude '**/internal/**/*.java', '**/internal/*.java'
         exclude '**/BuildConfig.java'
         exclude '**/R.java'
-        exclude '**/internal/**'
-        exclude '**/services/**'
     }
+
 }
