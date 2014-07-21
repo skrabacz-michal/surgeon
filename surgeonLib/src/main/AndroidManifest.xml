@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="de.asideas.surgeon">
 
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -17,10 +18,13 @@
             android:exported="false">
         </service>
         <service
+            android:process=":surgeon"
+            android:isolatedProcess="true"
             android:name=".services.StepRecorderService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true"
+            tools:ignore="UnusedAttribute">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService"/>
             </intent-filter>
