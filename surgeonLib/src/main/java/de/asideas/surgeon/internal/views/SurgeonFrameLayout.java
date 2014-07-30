@@ -247,7 +247,7 @@ public class SurgeonFrameLayout extends FrameLayout
     }
 
     /** Set whether or not the 3D view layer interaction is enabled. */
-    public void setLayerInteractionEnabled(boolean enabled)
+    public boolean setLayerInteractionEnabled(boolean enabled)
     {
         if (this.enabled != enabled)
         {
@@ -255,6 +255,8 @@ public class SurgeonFrameLayout extends FrameLayout
             setWillNotDraw(!enabled);
             invalidate();
         }
+
+        return enabled;
     }
 
     /** Returns true when 3D view layer interaction is enabled. */

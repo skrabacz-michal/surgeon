@@ -3,6 +3,7 @@ package de.asideas.surgeon.services;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Build;
@@ -65,6 +66,8 @@ public class InspectorArcService extends Service implements View.OnTouchListener
 
     private Point mCenterPoint;
 
+    private SharedPreferences mSharedPreferences;
+
     private final Handler handler = new Handler()
     {
         @Override
@@ -96,6 +99,8 @@ public class InspectorArcService extends Service implements View.OnTouchListener
     {
         super.onCreate();
 
+        mSharedPreferences = getSharedPreferences("surgeon", MODE_PRIVATE);
+
         MIN_MOVE_DISTANCE = Utils.dpToPx(this, 64) / 2;
 
         wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
@@ -117,6 +122,7 @@ public class InspectorArcService extends Service implements View.OnTouchListener
     public void onDestroy()
     {
         super.onDestroy();
+
         try
         {
             if (frame != null)
@@ -243,31 +249,20 @@ public class InspectorArcService extends Service implements View.OnTouchListener
         final PieItem itemStart = pieController.makeItem(R.drawable.running);
         final PieItem itemStop = pieController.makeItem(R.drawable.stop_running);
 
-        itemStart.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO + 2 * sweep, sweep);
-        itemStart.setOnClickListener(new de.asideas.surgeon.internal.ccontrols.PieItem.OnClickListener()
-        {
-            @Override
-            public void onClick(de.asideas.surgeon.internal.ccontrols.PieItem item)
-            {
-                scalpelManager.toggle();
-                pieRenderer.removeItem(itemStart);
-                pieRenderer.addItem(itemStop);
-            }
-        });
-
         itemStop.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO + 2 * sweep, sweep);
         itemStop.setOnClickListener(new de.asideas.surgeon.internal.ccontrols.PieItem.OnClickListener()
         {
             @Override
             public void onClick(de.asideas.surgeon.internal.ccontrols.PieItem item)
             {
-                scalpelManager.toggle();
+                saveState(scalpelManager.toggle());
+
                 pieRenderer.addItem(itemStart);
                 pieRenderer.removeItem(itemStop);
             }
         });
 
-        PieItem itemShowViews = pieController.makeItem(R.drawable.show_views);
+        final PieItem itemShowViews = pieController.makeItem(R.drawable.show_views);
         itemShowViews.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO + sweep, sweep);
         itemShowViews.setOnClickListener(new de.asideas.surgeon.internal.ccontrols.PieItem.OnClickListener()
         {
@@ -278,7 +273,7 @@ public class InspectorArcService extends Service implements View.OnTouchListener
             }
         });
 
-        PieItem itemShowDetails = pieController.makeItem(R.drawable.show_details);
+        final PieItem itemShowDetails = pieController.makeItem(R.drawable.show_details);
         itemShowDetails.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO, sweep);
         itemShowDetails.setOnClickListener(new de.asideas.surgeon.internal.ccontrols.PieItem.OnClickListener()
         {
@@ -289,7 +284,7 @@ public class InspectorArcService extends Service implements View.OnTouchListener
             }
         });
 
-        PieItem itemLayers = pieController.makeItem(R.drawable.layers);
+        final PieItem itemLayers = pieController.makeItem(R.drawable.layers);
         itemLayers.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO - sweep, sweep);
 
         PieItem itemClose = pieController.makeItem(R.drawable.close);
@@ -316,11 +311,37 @@ public class InspectorArcService extends Service implements View.OnTouchListener
             }
         });
 
-        pieRenderer.addItem(itemStart);
+        itemStart.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO + 2 * sweep, sweep);
+        itemStart.setOnClickListener(new de.asideas.surgeon.internal.ccontrols.PieItem.OnClickListener()
+        {
+            @Override
+            public void onClick(de.asideas.surgeon.internal.ccontrols.PieItem item)
+            {
+                saveState(scalpelManager.toggle());
+
+                pieRenderer.removeItem(itemStart);
+                pieRenderer.addItem(itemStop);
+
+                toggleDependentViews(true, itemShowViews, itemShowDetails, itemLayers);
+            }
+        });
+
+        boolean state = getState();
+        if (!state)
+        {
+            pieRenderer.addItem(itemStart);
+        }
+        else
+        {
+            pieRenderer.addItem(itemStop);
+        }
+
         pieRenderer.addItem(itemShowViews);
         pieRenderer.addItem(itemShowDetails);
         pieRenderer.addItem(itemLayers);
         pieRenderer.addItem(itemClose);
+
+        toggleDependentViews(state, itemShowViews, itemShowDetails, itemLayers);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
         {
@@ -352,6 +373,18 @@ public class InspectorArcService extends Service implements View.OnTouchListener
         itemLayers.addItem(itemLayersShow);
 
         renderOverlay.addRenderer(pieRenderer);
+    }
+
+    private void saveState(boolean enable)
+    {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean("pie_start", enable);
+        editor.apply();
+    }
+
+    private boolean getState()
+    {
+        return mSharedPreferences.getBoolean("pie_start", false);
     }
 
     @Override
@@ -386,6 +419,14 @@ public class InspectorArcService extends Service implements View.OnTouchListener
     private void toggleVisibility(int visibility)
     {
         frame.findViewById(R.id.control_hint).setVisibility(visibility);
+    }
+
+    private void toggleDependentViews(boolean status, PieItem... items)
+    {
+        for (PieItem item : items)
+        {
+            item.setEnabled(status);
+        }
     }
 }
 

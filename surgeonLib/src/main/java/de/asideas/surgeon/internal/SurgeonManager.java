@@ -49,9 +49,9 @@ public class SurgeonManager
         }
     }
 
-    public void toggle()
+    public boolean toggle()
     {
-        mSurgeonView.setLayerInteractionEnabled(!mSurgeonView.isLayerInteractionEnabled());
+        return mSurgeonView.setLayerInteractionEnabled(!mSurgeonView.isLayerInteractionEnabled());
     }
 
     public void toggleMoreInfo()

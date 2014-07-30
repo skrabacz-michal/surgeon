@@ -19,7 +19,6 @@
         </service>
         <service
             android:process=":surgeon"
-            android:isolatedProcess="true"
             android:name=".services.StepRecorderService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:enabled="true"
