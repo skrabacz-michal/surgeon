@@ -1,5 +1,12 @@
 package de.asideas.surgeon.internal.views;
 
+import static android.graphics.Paint.ANTI_ALIAS_FLAG;
+import static android.graphics.Paint.Style.STROKE;
+import static android.graphics.Typeface.NORMAL;
+import static android.os.Build.VERSION_CODES.JELLY_BEAN;
+import static android.view.MotionEvent.ACTION_DOWN;
+import static android.view.MotionEvent.ACTION_POINTER_UP;
+import static android.view.MotionEvent.INVALID_POINTER_ID;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
@@ -7,9 +14,7 @@ import android.graphics.Camera;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -27,17 +32,8 @@ import java.util.BitSet;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
-
-import static android.graphics.Paint.ANTI_ALIAS_FLAG;
-import static android.graphics.Paint.Style.FILL;
-import static android.graphics.Paint.Style.STROKE;
-import static android.graphics.Typeface.NORMAL;
-import static android.os.Build.VERSION_CODES.JELLY_BEAN;
-import static android.view.MotionEvent.ACTION_DOWN;
-import static android.view.MotionEvent.ACTION_POINTER_UP;
-import static android.view.MotionEvent.INVALID_POINTER_ID;
-import de.asideas.surgeon.BuildConfig;
-import de.asideas.surgeon.internal.utils.LayoutTraverser;
+import de.asideas.overlay.controls.BuildConfig;
+import de.asideas.overlay.controls.internal.utils.LayoutTraverser;
 
 /**
  * Renders your view hierarchy as an interactive 3D visualization of layers.

@@ -16,5 +16,6 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        maven { url 'http://mobile-maven.asv.local/' }
     }
 }

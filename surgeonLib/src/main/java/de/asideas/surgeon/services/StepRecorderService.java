@@ -13,7 +13,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import de.asideas.surgeon.BuildConfig;
 import de.asideas.surgeon.internal.network.NetworkConnection;
 import de.asideas.surgeon.internal.network.NetworkException;
 

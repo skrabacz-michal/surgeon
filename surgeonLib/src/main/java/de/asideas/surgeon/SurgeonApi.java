@@ -3,7 +3,6 @@ package de.asideas.surgeon;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentCallbacks;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,7 +10,6 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import de.asideas.surgeon.internal.SurgeonManager;
-import de.asideas.surgeon.services.InspectorArcService;
 import de.asideas.surgeon.services.StepRecorderService;
 
 /**
@@ -20,8 +18,6 @@ import de.asideas.surgeon.services.StepRecorderService;
 public class SurgeonApi
 {
     private static final String TAG = SurgeonApi.class.getSimpleName();
-
-    private static Application sApplication;
 
     private static int sStarted;
 
@@ -58,9 +54,9 @@ public class SurgeonApi
         {
             Log.d(TAG, "onActivityResumed");
 
-            InspectorArcService.setScalpelManager(sManagers.get(activity.getComponentName().getPackageName() + activity.getComponentName().getClassName()));
+            mInspectorManager.setSurgeonManager(sManagers.get(activity.getComponentName().getPackageName() + activity.getComponentName().getClassName()));
 
-            activity.startService(new Intent(activity, InspectorArcService.class));
+            mInspectorManager.bind();
         }
 
         @Override
@@ -118,31 +114,28 @@ public class SurgeonApi
         }
     };
 
+    private static InspectorManager mInspectorManager;
+
     public static void start(Application application)
     {
         surgeonEnabled = checkSettings(application.getPackageName());
 
         if (surgeonEnabled)
         {
-            SurgeonApi.sApplication = application;
             application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
             application.registerComponentCallbacks(componentCallbacks);
         }
 
         StepRecorderService.sParentPackageName = application.getPackageName();
+
+        mInspectorManager = new InspectorManager(application);
+        mInspectorManager.bind();
     }
 
     private static void onEnteredBackground()
     {
-        stopService(sApplication);
-    }
-
-    private static void stopService(Application application)
-    {
-        if (application != null)
-        {
-            application.getApplicationContext().stopService(new Intent(application, InspectorArcService.class));
-        }
+        mInspectorManager.unbind();
+        mInspectorManager.stop();
     }
 
     public static void stop(Application application)
@@ -152,7 +145,8 @@ public class SurgeonApi
             application.unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks);
             application.unregisterComponentCallbacks(componentCallbacks);
 
-            stopService(application);
+            mInspectorManager.unbind();
+            mInspectorManager.stop();
         }
     }
 
