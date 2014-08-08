@@ -124,12 +124,12 @@ public class SurgeonApi
         {
             application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
             application.registerComponentCallbacks(componentCallbacks);
+
+            StepRecorderService.sParentPackageName = application.getPackageName();
+
+            mInspectorManager = new InspectorManager(application);
+            mInspectorManager.bind();
         }
-
-        StepRecorderService.sParentPackageName = application.getPackageName();
-
-        mInspectorManager = new InspectorManager(application);
-        mInspectorManager.bind();
     }
 
     private static void onEnteredBackground()

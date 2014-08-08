@@ -184,10 +184,11 @@ public class InspectorManager
 
         toggleDependentViews(state, itemShowViews, itemShowDetails, itemLayers);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
-        {
-            mPieRenderer.addItem(itemRecord);
-        }
+        // TODO msq
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
+//        {
+////            mPieRenderer.addItem(itemRecord);
+//        }
 
         PieItem itemLayersHide = pieController.makeItem(R.drawable.remove_layer);
         itemLayersHide.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO - SWEEP, SWEEP);
