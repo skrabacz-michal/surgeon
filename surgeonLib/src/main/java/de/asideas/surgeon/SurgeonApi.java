@@ -134,8 +134,8 @@ public class SurgeonApi
 
     private static void onEnteredBackground()
     {
-        mInspectorManager.unbind();
-        mInspectorManager.stop();
+//        mInspectorManager.unbind();
+//        mInspectorManager.stop();
     }
 
     public static void stop(Application application)

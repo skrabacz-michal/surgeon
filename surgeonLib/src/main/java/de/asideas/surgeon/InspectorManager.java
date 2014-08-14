@@ -89,6 +89,9 @@ public class InspectorManager
         final PieItem itemStart = pieController.makeItem(R.drawable.running);
         final PieItem itemStop = pieController.makeItem(R.drawable.stop_running);
 
+        final PieItem itemShowViews = pieController.makeItem(R.drawable.show_views);
+        final PieItem itemShowDetails = pieController.makeItem(R.drawable.show_details);
+
         itemStop.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO + 2 * SWEEP, SWEEP);
         itemStop.setOnClickListener(new PieItem.OnClickListener()
         {
@@ -99,10 +102,11 @@ public class InspectorManager
 
                 mPieRenderer.addItem(itemStart);
                 mPieRenderer.removeItem(itemStop);
+
+                toggleDependentViews(false, itemShowViews, itemShowDetails);
             }
         });
 
-        final PieItem itemShowViews = pieController.makeItem(R.drawable.show_views);
         itemShowViews.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO + SWEEP, SWEEP);
         itemShowViews.setOnClickListener(new PieItem.OnClickListener()
         {
@@ -113,7 +117,6 @@ public class InspectorManager
             }
         });
 
-        final PieItem itemShowDetails = pieController.makeItem(R.drawable.show_details);
         itemShowDetails.setFixedSlice(FLOAT_PI_DIVIDED_BY_TWO, SWEEP);
         itemShowDetails.setOnClickListener(new PieItem.OnClickListener()
         {
@@ -149,6 +152,7 @@ public class InspectorManager
                 Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mApplication.startActivity(intent);
+
             }
         });
 
@@ -187,7 +191,7 @@ public class InspectorManager
         // TODO msq
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
 //        {
-////            mPieRenderer.addItem(itemRecord);
+//            mPieRenderer.addItem(itemRecord);
 //        }
 
         PieItem itemLayersHide = pieController.makeItem(R.drawable.remove_layer);

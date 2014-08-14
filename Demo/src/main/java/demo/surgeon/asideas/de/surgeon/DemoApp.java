@@ -1,7 +1,6 @@
 package demo.surgeon.asideas.de.surgeon;
 
 import android.app.Application;
-import android.bluetooth.BluetoothClass;
 import de.asideas.surgeon.SurgeonApi;
 
 /**
