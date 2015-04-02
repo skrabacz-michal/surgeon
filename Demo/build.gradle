@@ -33,16 +33,18 @@ android {
             buildConfigField "Boolean", "ENABLE_SURGEON", "true"
         }
         surgeon {
-            runProguard false
+            minifyEnabled false
+            shrinkResources false
             buildConfigField "Boolean", "ENABLE_SURGEON", "true"
         }
         release {
-            runProguard false
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
-            applicationVariants.all { variant ->
-                appendVersionNameVersionCode(variant, defaultConfig)
-            }
+//            applicationVariants.all { variant ->
+//                appendVersionNameVersionCode(variant, defaultConfig)
+//            }
         }
     }
 }
@@ -56,7 +58,7 @@ dependencies {
 
 def appendVersionNameVersionCode(variant, defaultConfig) {
 //    if (variant.name == android.buildTypes.release.name) {
-    if (variant.zipAlign) {
+    if (variant.zipAlignEnabled) {
         def file = variant.outputFile
         def fileName = file.name.replace(".apk", "-" + defaultConfig.versionName + "-" + defaultConfig.versionCode + ".apk")
         variant.outputFile = new File(file.parent, fileName)
